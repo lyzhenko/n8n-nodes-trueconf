@@ -43,7 +43,7 @@ export class TrueConfTrigger implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'TrueConf Trigger',
 		name: 'trueConfTrigger',
-		icon: 'file:trueconf.svg',
+		icon: 'file:trueconf.png',
 		group: ['trigger'],
 		version: [1],
 		description: 'Starts a workflow when a TrueConf bot receives a message or another event',

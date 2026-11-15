@@ -27,7 +27,7 @@ export class TrueConf implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'TrueConf',
 		name: 'trueConf',
-		icon: 'file:trueconf.svg',
+		icon: 'file:trueconf.png',
 		group: ['output'],
 		version: [1],
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',

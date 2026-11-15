@@ -5,7 +5,7 @@ export class TrueConfApi implements ICredentialType {
 
 	displayName = 'TrueConf API';
 
-	icon = 'file:trueconf.svg' as const;
+	icon = 'file:trueconf.png' as const;
 
 	documentationUrl = 'https://trueconf.ru/docs/chatbot-connector/ru/connect-and-auth/';
 

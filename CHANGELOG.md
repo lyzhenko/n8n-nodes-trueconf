@@ -32,3 +32,9 @@
 * Скрипты установки пакета на хост n8n (`deploy/deploy.py`, `deploy/install-node.sh`).
 * Документация: установка, архитектура, тестирование, подготовка TrueConf Server; исследования
   Chatbot Connector, Server API v4 и механики community-нод n8n 2.47.
+
+### Изменено
+
+* Логотип ноды, триггера и credential — официальная иконка клиента TrueConf
+  (`mainicon.ico` → PNG 128×128, `file:trueconf.png`) вместо собственного SVG.
+  Сборка теперь очищает `dist/`, чтобы удалённые ассеты не попадали в пакет.
