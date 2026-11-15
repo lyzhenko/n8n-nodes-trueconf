@@ -222,7 +222,7 @@ export async function createMockTrueConf(options = {}) {
 		});
 	});
 
-	await new Promise((resolve) => httpServer.listen(0, '127.0.0.1', resolve));
+	await new Promise((resolve) => httpServer.listen(options.port ?? 0, options.host ?? '127.0.0.1', resolve));
 	const { port } = httpServer.address();
 
 	let notificationId = 1000;

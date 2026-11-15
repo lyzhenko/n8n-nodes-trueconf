@@ -39,7 +39,8 @@ def load_env() -> dict[str, str]:
 
 def run_local(command: list[str], cwd: Path) -> None:
     print(f'[deploy] $ {" ".join(command)}')
-    subprocess.run(command, cwd=cwd, check=True)
+    # npm is a .cmd shim on Windows, so the shell has to resolve it.
+    subprocess.run(' '.join(command), cwd=cwd, check=True, shell=(sys.platform == 'win32'))
 
 
 def build_and_pack(no_build: bool) -> Path:
