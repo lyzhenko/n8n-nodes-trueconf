@@ -1,0 +1,32 @@
+# --- Node / TypeScript ---
+node_modules/
+dist/
+*.tsbuildinfo
+npm-debug.log*
+.npm/
+
+# --- Build artifacts ---
+*.tgz
+build/
+
+# --- Secrets & environment ---
+.env
+.env.*
+!.env.example
+!deploy/*.env.example
+
+# --- Tests / local run ---
+.test/
+coverage/
+tmp/
+.mock/
+
+# --- Editors / OS ---
+.idea/
+.vscode/*
+!.vscode/extensions.json
+Thumbs.db
+.DS_Store
+# Raw research artifacts are reproducible from the sources listed in docs/research/*.md
+docs/research/_raw/
+docs/research/_src/

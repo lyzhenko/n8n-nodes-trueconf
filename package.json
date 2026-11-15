@@ -1,0 +1,62 @@
+{
+  "name": "n8n-nodes-trueconf",
+  "version": "0.1.0",
+  "description": "n8n community node for TrueConf: send messages and files with a chatbot, receive incoming messages and events in real time",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "trueconf",
+    "chatbot",
+    "messenger"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Alexander Lyzhenko",
+    "email": "alexander.lyzhenko@yandex.ru"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://192.168.0.12/lyzhenko/trueconf_node_n8n.git"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && node scripts/copy-assets.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "prepare-package": "npm run build && node scripts/pack-package.mjs",
+    "pack:tgz": "npm pack --silent"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/TrueConfApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/TrueConf/TrueConf.node.js",
+      "dist/nodes/TrueConf/TrueConfTrigger.node.js"
+    ]
+  },
+  "dependencies": {
+    "ws": "^8.18.3"
+  },
+  "bundleDependencies": [
+    "ws"
+  ],
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@types/ws": "^8.18.1",
+    "n8n-workflow": "2.47.2",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  }
+}
