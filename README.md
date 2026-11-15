@@ -1,5 +1,7 @@
 # n8n-nodes-trueconf
 
+**English** · [Русский](README.ru.md)
+
 [n8n](https://n8n.io) community node for **TrueConf Server** — a chatbot integration built on the
 TrueConf Chatbot Connector (HTTP API + WebSocket). Think of the Telegram node: the bot receives
 messages in real time and answers with text or files.

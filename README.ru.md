@@ -1,5 +1,7 @@
 # n8n-nodes-trueconf
 
+[English](README.md) · **Русский**
+
 Community-нода [n8n](https://n8n.io) для интеграции с **TrueConf Server** через Chatbot Connector
 (HTTP API + WebSocket). Аналог ноды Telegram: бот получает сообщения в реальном времени и отвечает
 текстом или файлами.
