@@ -24,6 +24,11 @@
 * Unit-тесты протокола против mock TrueConf Bridge (14 проверок).
 * E2E-стенд `deploy/e2e.py` + `scripts/e2e/n8n-suite.mjs`: 13 проверок через реальный n8n
   (sendMessage, getChats, sendFile, trigger, credential test).
+* Живые интеграционные тесты `deploy/live.py` + `scripts/live/n8n-live.mjs` против настоящего
+  TrueConf Server 5.5.8: 10/10 проверок (авторизация бота, credential Test, отправка сообщения и
+  файла, история чата, активация trigger-ноды и запуск workflow по реальному сообщению).
+* `scripts/setup/enable-trueconf-tls.sh` — включение HTTPS на TrueConf (нужно для Server API v4,
+  у которого OAuth2 не работает по HTTP), с откатом.
 * Скрипты установки пакета на хост n8n (`deploy/deploy.py`, `deploy/install-node.sh`).
 * Документация: установка, архитектура, тестирование, подготовка TrueConf Server; исследования
   Chatbot Connector, Server API v4 и механики community-нод n8n 2.47.

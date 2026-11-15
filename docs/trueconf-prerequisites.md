@@ -81,7 +81,21 @@ curl -sk -X POST http://127.0.0.1:4309/bridge/api/client/v1/oauth/token \
   (порт 443). Пути `/bridge/api/...` и `/websocket/chat_bot/` проксируются автоматически.
 * Внутри Docker-контейнера с n8n `127.0.0.1` — это сам контейнер; используйте адрес сервера TrueConf.
 
-## 6. Ограничения протокола, о которых стоит помнить
+## 6. HTTPS для Server API v4 (не обязательно для ноды)
+
+Сама нода работает через Chatbot Connector и по HTTP на порту 4309. Но **TrueConf Server API v4**
+(управление пользователями и конференциями) требует HTTPS: OAuth2-запросы по HTTP отклоняются с
+`400 insecureConnection`. Если API v4 понадобится, включите TLS на веб-сервере TrueConf:
+
+```bash
+python deploy/tc_host.py --sudo --file scripts/setup/enable-trueconf-tls.sh   # HTTPS на 443
+python deploy/tc_host.py --sudo --file scripts/setup/enable-trueconf-tls.sh --rollback
+```
+
+Скрипт добавляет `Listen 443`, самоподписанный сертификат и `conf.d/10-tls.ssl`; HTTP на 80
+продолжает работать. Конфиг Apache проверяется (`apachectl configtest`) до перезапуска.
+
+## 7. Ограничения протокола, о которых стоит помнить
 
 * Одно WebSocket-соединение = одна сессия бота; сервер держит до **128** соединений (с 5.5.3).
 * События нужно подтверждать в течение **300 секунд**, иначе соединение закрывается.

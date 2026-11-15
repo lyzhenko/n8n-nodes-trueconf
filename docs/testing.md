@@ -74,27 +74,57 @@ python deploy/e2e.py stop
 
 ## Проверка на реальном сервере
 
-Mock повторяет контракт по документации и исходникам библиотеки `python-trueconf-bot`, но не
-заменяет живой TrueConf. Итоговая приёмка должна включать:
+Живой стенд: **TrueConf Server 5.5.8** (`192.168.0.13`, домен `ru5337.trueconf.name`), бот
+`bot@ru5337.trueconf.name`, цель — личный чат с `eladm@ru5337.trueconf.name`.
 
-- [ ] credential Test против реального сервера (пароль и Self-signed TLS);
-- [ ] `Send Message` в личный чат по TrueConf ID и в существующий chat id;
-- [ ] `Send File` с файлом > 1 МБ (проверка multipart и лимитов хранилища);
-- [ ] trigger: сообщение от обычного пользователя → запуск workflow, ответ бота;
-- [ ] поведение при рестарте TrueConf Bridge (реконнект) и при истечении JWT.
+```bash
+# .env: TRUECONF_PATH / TRUECONF_BOT_USER / TRUECONF_BOT_PASS / TRUECONF_TARGET_USER
+python deploy/live.py
+python deploy/live.py --target eladm@ru5337.trueconf.name --text "проверка"
+```
 
-Для этого нужен тестовый TrueConf Server 5.5+ (Free подходит) и бот-учётка; подготовка описана в
-[trueconf-prerequisites.md](trueconf-prerequisites.md).
+`deploy/live.py` собирает конфиг и запускает `scripts/live/n8n-live.mjs` **на хосте n8n**, чтобы
+n8n обращался к TrueConf из своей сетевой позиции. Сценарии:
+
+| Проверка | Что подтверждается |
+|---|---|
+| bot token endpoint | `POST /bridge/api/client/v1/oauth/token` → `201` + JWT |
+| n8n credential test | кнопка Test в n8n → `Connection successful!` |
+| sendMessage | workflow успешен, вернулись `chatId` и `messageId` |
+| getHistory | отправленный текст реально лежит в истории чата |
+| sendFile | файл (Code-нода создаёт бинарные данные) загружен и отправлен, вернулся `fileId` |
+| trigger (activate) | workflow с TrueConf Trigger активируется, бот подключается по WS |
+| trigger (event) | реальное сообщение запускает execution, payload события доходит до workflow |
+| trigger (deactivate) | деактивация закрывает соединение |
+
+Текущий результат: **10/10 PASS**.
+
+Что осталось за пределами автоматизации: визуальная проверка в клиенте TrueConf (сообщение и файл
+видны в чате), поведение при рестарте `trueconf-bridge` и при истечении JWT (месяц).
+
+### Подготовка стенда, который использовался
+
+1. TrueConf Server 5.5.8 установлен на ALT Linux 11.1 (пакет `trueconf-server-5.5.8.10030-altp11`),
+   лицензия Free уже зарегистрирована.
+2. Бот `bot@ru5337.trueconf.name` создан в панели (`/admin/` → Пользователи), тип «Пользователь».
+3. Для Server API v4 (не нужен самой ноде, но нужен для администрирования) включён HTTPS
+   скриптом `scripts/setup/enable-trueconf-tls.sh`: добавляет `Listen 443`, самоподписанный
+   сертификат и SSL-настройки в `conf.d/10-tls.ssl`, не трогая HTTP на 80.
+   Откат: тот же скрипт с `--rollback`.
 
 ## Диагностические скрипты
 
 | Скрипт | Назначение |
 |---|---|
+| `deploy/tc_host.py` | выполнение команд/скриптов на хосте TrueConf (`--sudo`, `--file`) |
+| `scripts/setup/enable-trueconf-tls.sh` | включение HTTPS на TrueConf (с `--rollback`) |
 | `scripts/recon/01-server-info.sh` | версии n8n/n8n-workflow, каталоги, порты, env |
 | `scripts/recon/02-after-install.sh` | состояние службы и логи после установки пакета |
 | `scripts/recon/03-verify-node-types.sh` | список зарегистрированных типов нод через REST |
+| `scripts/recon/10…27-*.sh` | исследование хоста TrueConf (службы, БД, OAuth-клиенты, веб-конфиг) |
 | `scripts/e2e/n8n-probe*.mjs` | разбор форматов REST-ответов n8n 2.47 (execution data, activate) |
 | `scripts/e2e/n8n-verify.mjs` | тест credential и деактивация оставшихся probe-workflow |
+| `scripts/e2e/n8n-cleanup.mjs` | удаление тестовых workflow и mock-credential |
 
-Запуск скриптов на хосте: `cd ../n8n_deploy && uv run python tools/rssh.py --file <путь>`
+Запуск скриптов на хосте n8n: `cd ../n8n_deploy && uv run python tools/rssh.py --file <путь>`
 (с `--sudo` для чтения `/var/lib/n8n` и `/etc/n8n`).

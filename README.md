@@ -121,6 +121,16 @@ python deploy/e2e.py suite     # прогнать 13 проверок
 python deploy/e2e.py stop      # остановить mock
 ```
 
+Проверка на реальном TrueConf Server (бот задаётся в `.env`: `TRUECONF_BOT_USER` / `TRUECONF_BOT_PASS`):
+
+```bash
+python deploy/live.py
+```
+
+Скрипт прогоняет 10 проверок через настоящий сервер: авторизация бота, credential Test, отправка
+сообщения и файла, чтение истории, активация trigger-ноды и запуск workflow по реальному сообщению.
+Текущий статус: **проверено на TrueConf Server 5.5.8 — 10/10 PASS**.
+
 Подробнее — [docs/testing.md](docs/testing.md), устройство — [docs/architecture.md](docs/architecture.md).
 
 ## Структура репозитория
