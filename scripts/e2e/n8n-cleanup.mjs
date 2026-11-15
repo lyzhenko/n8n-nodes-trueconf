@@ -32,7 +32,7 @@ await api('/rest/login', {
 
 const workflowPayload = await api('/rest/workflows?limit=100');
 const workflows = (workflowPayload.data ?? workflowPayload).results ?? (workflowPayload.data ?? workflowPayload);
-const removable = workflows.filter((workflow) => /^(E2E:|Probe|Probe2|Trigger probe|Manual trigger probe)/.test(workflow.name));
+const removable = workflows.filter((workflow) => /^(E2E:|Probe|Probe2|Trigger probe|Manual trigger probe|LIVE:)/.test(workflow.name));
 
 for (const workflow of removable) {
 	if (workflow.active) {
@@ -67,3 +67,4 @@ if (config.credentialName) {
 }
 
 console.log(`cleanup done: ${removable.length} workflows removed`);
+
