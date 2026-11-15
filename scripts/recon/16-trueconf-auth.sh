@@ -10,7 +10,7 @@ echo "== user types =="
 q "select uuid, name from main.users_type order by name"
 
 echo "== auth attempts =="
-for login in "eladm" "eladm@ru5337.trueconf.name" "ru5337.trueconf.name\\eladm"; do
+for login in "eladm" "eladm@example.trueconf.name" "example.trueconf.name\\eladm"; do
 	code=$(curl -s -o /tmp/tc_auth.out -w '%{http_code}' -X POST http://127.0.0.1:4309/bridge/api/client/v1/oauth/token \
 		-H 'content-type: application/json' \
 		-d "{\"client_id\":\"chat_bot\",\"grant_type\":\"password\",\"username\":\"$login\",\"password\":\"${TRUECONF_PASS:-}\"}")

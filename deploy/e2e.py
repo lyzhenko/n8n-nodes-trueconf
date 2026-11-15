@@ -197,7 +197,7 @@ def cmd_push(client: paramiko.SSHClient, method: str, payload: str | None, text:
 def read_admin_credentials() -> tuple[str, str]:
     """Reads the n8n owner credentials from the deployment notes."""
     notes = ROOT.parent / 'n8n_deploy' / 'logs' / 'credentials.txt'
-    email = 'admin@alexqsoft.int'
+    email = 'admin@example.com'
     password = ''
     if notes.exists():
         for line in notes.read_text(encoding='utf-8').splitlines():
@@ -222,7 +222,7 @@ def cmd_setup(client: paramiko.SSHClient, message_text: str | None) -> int:
         'botUsername': 'bot@mock.local',
         'botPassword': 'secret',
         'messageText': message_text or 'Hello from n8n e2e',
-        'publicUrl': 'https://192.168.0.11',
+        'publicUrl': 'https://n8n.example.com',
     }
 
     sftp = client.open_sftp()

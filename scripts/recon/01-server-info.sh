@@ -1,5 +1,5 @@
 #!/bin/bash
-# Read-only recon on the n8n host (192.168.0.11).
+# Read-only recon on the n8n host (n8n.example.com).
 set -u
 N8N_ROOT=/opt/n8n/lib/node_modules/n8n
 echo "== n8n package =="

@@ -3,7 +3,7 @@
 # Logs in through the REST API (cookie auth) and inspects /rest/node-types.
 set -u
 BASE=http://127.0.0.1:5678
-EMAIL="${N8N_EMAIL:-admin@alexqsoft.int}"
+EMAIL="${N8N_EMAIL:-admin@example.com}"
 PASS="${N8N_PASS:?set N8N_PASS}"
 
 COOKIE=$(mktemp)

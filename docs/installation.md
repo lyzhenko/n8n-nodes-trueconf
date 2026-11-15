@@ -31,7 +31,7 @@ npm run build
 npm pack                                  # n8n-nodes-trueconf-0.1.0.tgz
 
 # скопировать tarball на сервер
-scp n8n-nodes-trueconf-0.1.0.tgz eladm@192.168.0.11:/tmp/
+scp n8n-nodes-trueconf-0.1.0.tgz eladm@n8n.example.com:/tmp/
 
 # на сервере (root)
 TARGET=/var/lib/n8n/.n8n/nodes/node_modules/n8n-nodes-trueconf

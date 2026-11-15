@@ -19,7 +19,7 @@ echo "hostname -f: $DOMAIN"
 echo "tests:"
 try "eladm"
 try "eladm@$DOMAIN"
-try "eladm@192.168.0.13"
+try "eladm@trueconf.example.com"
 try "$DOMAIN\\eladm"
 try "ELADM"
 

@@ -16,7 +16,7 @@ export class TrueConfApi implements ICredentialType {
 			type: 'string',
 			default: 'http://127.0.0.1:4309',
 			required: true,
-			placeholder: 'http://192.168.0.11:4309',
+			placeholder: 'http://n8n.example.com:4309',
 			description:
 				'Address of the TrueConf Server that hosts the bot. Use the local TrueConf Bridge port (4309) ' +
 				'or the public HTTPS address of the server. The scheme is optional and defaults to http.',

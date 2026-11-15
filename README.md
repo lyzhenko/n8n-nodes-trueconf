@@ -1,182 +1,168 @@
 # n8n-nodes-trueconf
 
-Community-нода для [n8n](https://n8n.io) — интеграция с **TrueConf Server** через Chatbot Connector
-(HTTP API + WebSocket). Аналог ноды Telegram: бот получает сообщения в реальном времени и отвечает
-текстом или файлами.
+[n8n](https://n8n.io) community node for **TrueConf Server** — a chatbot integration built on the
+TrueConf Chatbot Connector (HTTP API + WebSocket). Think of the Telegram node: the bot receives
+messages in real time and answers with text or files.
 
 ```
-n8n workflow:  [TrueConf Trigger] ──► [любая логика n8n] ──► [TrueConf: Send Message]
+n8n workflow:  [TrueConf Trigger] ──► [any n8n logic] ──► [TrueConf: Send Message]
 ```
 
-## Что умеет
+## Features
 
-**Нода `TrueConf` (action)**
+**`TrueConf` node (action)**
 
-| Ресурс  | Операции |
+| Resource | Operations |
 |---|---|
 | Message | Send Message, Send File, Edit Message, Delete Message, Forward Message, Get Message, Get Chat History |
-| Chat    | Get Many, Get, Create Personal Chat, Create Group Chat, Create Channel, Get Participants |
-| Bot     | Get Bot Info (проверка связи и TrueConf ID бота) |
+| Chat | Get Many, Get, Create Personal Chat, Create Group Chat, Create Channel, Get Participants |
+| Bot | Get Bot Info (connection check + bot TrueConf ID) |
 
-**Нода `TrueConf Trigger`** — запускает workflow по событиям TrueConf: новое сообщение, нажатие
-inline-кнопки, создание чата, изменение участников, редактирование/удаление сообщения, изменение чата.
-Есть фильтры по событиям и по chat ID, опция «не реагировать на собственные сообщения» и доставка
-сообщений, накопившихся пока workflow был выключен.
+**`TrueConf Trigger` node** — starts a workflow on TrueConf events: new message, inline button press,
+chat created, participants changed, message edited/removed, chat updated. Filter by event type and by
+chat ID, ignore the bot's own messages, and optionally deliver messages received while the workflow
+was inactive.
 
-**Credential `TrueConf API`** — адрес сервера, TrueConf ID бота и пароль. JWT кешируется на месяц,
-кнопка «Test» проверяет учётные данные реальным запросом к серверу.
+**`TrueConf API` credential** — server URL, bot TrueConf ID and password. The JWT is cached for a
+month; the **Test** button validates the credentials against the real server.
 
-## Требования
+## Requirements
 
-* n8n **2.x** (проверено на 2.47.7), Node.js >= 24 (в n8n 2.x это требование платформы).
-* TrueConf Server **5.5.0+** (TrueConf Server Free подходит: Chatbot Connector входит в бесплатную
-  редакцию). Нужна обычная учётная запись пользователя-бота с паролем.
-* Сетевой доступ из n8n до TrueConf Bridge: `http://<server>:4309` (локально) или
-  `https://<server>` через TrueConf Web Manager.
+* n8n **2.x** (tested on 2.47.7), Node.js >= 24 (an n8n 2.x requirement).
+* TrueConf Server **5.5.0+** (TrueConf Server Free works: the Chatbot Connector is part of the free
+  edition). The bot is a regular TrueConf user account with a password.
+* Network access from n8n to the TrueConf Bridge: `http://<server>:4309` (local) or
+  `https://<server>` through TrueConf Web Manager.
 
-Подробнее о подготовке сервера и бота — [docs/trueconf-prerequisites.md](docs/trueconf-prerequisites.md).
+Server and bot preparation: [docs/trueconf-prerequisites.md](docs/trueconf-prerequisites.md).
 
-## Установка
+## Installation
 
-Пакет ставится на хост n8n вручную, из собранного tarball (публикация в npm не требуется).
+### From npm (recommended)
+
+1. n8n → **Settings → Community nodes → Install**.
+2. Enter `n8n-nodes-trueconf` and confirm.
+3. On self-hosted instances the package must be allowed:
+   `N8N_UNVERIFIED_PACKAGES_ENABLED=true`.
+
+### Manual installation (tarball)
 
 ```bash
-# 1. Собрать пакет (на машине разработчика)
 npm install
 npm run build
 npm pack                       # -> n8n-nodes-trueconf-0.1.0.tgz
 
-# 2. На хосте n8n (root)
+# on the n8n host (root)
 install -d -o n8n -g n8n -m 0750 /var/lib/n8n/.n8n/nodes/node_modules/n8n-nodes-trueconf
 tar -xzf n8n-nodes-trueconf-0.1.0.tgz \
     -C /var/lib/n8n/.n8n/nodes/node_modules/n8n-nodes-trueconf --strip-components=1
 chown -R n8n:n8n /var/lib/n8n/.n8n/nodes/node_modules/n8n-nodes-trueconf
 
-# 3. Перезапустить n8n (пакеты читаются с диска при старте)
 systemctl restart n8n
 ```
 
-Автоматизированный вариант — `deploy/deploy.py` (собирает, копирует по SSH, ставит, перезапускает):
+`/var/lib/n8n` is the `N8N_USER_FOLDER` of this deployment; adjust it for your setup
+(`~/.n8n` for a default npm installation, a mounted volume for Docker). The package ships the only
+runtime dependency (`ws`) bundled, so `npm install` on the server is not needed.
 
-```bash
-cp deploy/.env.example deploy/.env    # SSH-доступ к хосту n8n
-python deploy/deploy.py
-```
+More details: [docs/installation.md](docs/installation.md).
 
-После перезапуска ноды `TrueConf` и `TrueConf Trigger` появляются в панели узлов.
-Подробности и обновление — [docs/installation.md](docs/installation.md).
-
-## Настройка
+## Configuration
 
 1. **Credentials → New → TrueConf API**
-   * **Server URL** — `http://192.168.0.11:4309` (локальный Bridge) или `https://trueconf.example.com`.
-     Схему можно не указывать, по умолчанию `http`.
-   * **Bot TrueConf ID** — логин бота, например `bot@video.example.com`.
-   * **Bot Password** — пароль бота.
-   * **Ignore SSL Issues** — включить для самоподписанного сертификата TrueConf.
-2. Нажмите **Test** — должно появиться `Connection successful!`.
+   * **Server URL** — `http://trueconf.example.com:4309` (local Bridge) or
+     `https://trueconf.example.com`. The scheme is optional and defaults to `http`.
+   * **Bot TrueConf ID** — for example `bot@example.trueconf.name`.
+   * **Bot Password** — the bot account password.
+   * **Ignore SSL Issues** — enable for a self-signed TrueConf certificate.
+2. Press **Test** — you should see `Connection successful!`.
 
-## Использование
+## Usage
 
-### Отправить сообщение
+### Send a message
 
-1. Добавьте ноду **TrueConf**, ресурс `Message`, операция `Send Message`.
-2. В поле **Chat ID or TrueConf ID** укажите:
-   * `chatId` существующего чата (например, из trigger-ноды), **или**
-   * TrueConf ID пользователя (`user@video.example.com`) — тогда бот откроет (или найдёт) личный чат.
-3. Текст, режим разметки (`text` / `markdown` / `html`), при необходимости — `Reply to Message ID`.
+1. Add the **TrueConf** node, resource `Message`, operation `Send Message`.
+2. **Chat ID or TrueConf ID** accepts either a chat id (for example from the trigger node) or a
+   TrueConf ID (`user@example.trueconf.name`) — in the latter case the bot opens (or reuses) a
+   personal chat.
+3. Fill in the text, the parse mode (`text` / `markdown` / `html`) and optionally `Reply to Message ID`.
 
-### Отправка файла
+### Send a file
 
-Операция `Send File` берёт файл из бинарного поля входного item (по умолчанию `data`). Типичная
-цепочка: `HTTP Request` (Response Format = File) → `TrueConf: Send File`, либо `Read Binary File`.
+`Send File` takes the file from an input binary field (default `data`). Typical chain:
+`HTTP Request` (Response Format = File) → `TrueConf: Send File`, or `Read Binary File`.
 
-### Ответ на входящее сообщение
+### Reply to an incoming message
 
-`TrueConf Trigger` (событие **Message Received**) → нужная логика → `TrueConf: Send Message`, где
-**Chat ID or TrueConf ID** = `{{ $json.chatId }}`, а **Reply to Message ID** = `{{ $json.messageId }}`.
+`TrueConf Trigger` (event **Message Received**) → your logic → `TrueConf: Send Message` with
+**Chat ID or TrueConf ID** = `{{ $json.chatId }}` and **Reply to Message ID** = `{{ $json.messageId }}`.
 
-Триггер отдаёт удобные поля: `chatId`, `chatTitle`, `chatType`, `messageId`, `authorId`, `authorType`,
-`text`, `parseMode`, `contentType`, `timestamp`, `replyMessageId`, `isFile…`, а исходный объект
-TrueConf — в `raw`.
+The trigger exposes convenient fields: `chatId`, `chatTitle`, `chatType`, `messageId`, `authorId`,
+`authorType`, `text`, `parseMode`, `contentType`, `timestamp`, `replyMessageId`, file fields for
+attachments, and the original TrueConf object in `raw`.
 
-Готовые workflow для импорта — в каталоге [examples/](examples/).
+Ready-to-import workflows: [examples/](examples/).
 
-## Разработка
+## Development
 
 ```bash
 npm install
-npm run build        # tsc + копирование иконок в dist/
-npm test             # unit-тесты протокола против mock TrueConf Bridge (14 проверок)
+npm run build        # tsc + icon copy into dist/
+npm test             # protocol unit tests against a mock TrueConf Bridge (14 checks)
 npm run typecheck
 ```
 
-E2E-проверка на живом n8n (создаёт credential и workflow через REST API, гоняет sendMessage, getChats,
-sendFile и trigger через mock Bridge, запущенный на хосте n8n):
+End-to-end tests: `tests/mock-bridge.mjs` implements the protocol, `tests/client.test.mjs` covers
+auth, framing, acknowledgements, reconnects and file uploads.
 
-```bash
-python deploy/e2e.py start     # поднять mock Bridge (systemd unit tc-e2e) на 127.0.0.1:4309
-python deploy/e2e.py setup     # создать credential и workflow в n8n
-python deploy/e2e.py suite     # прогнать 13 проверок
-python deploy/e2e.py stop      # остановить mock
-```
+See [docs/testing.md](docs/testing.md) for the live-server test procedure and
+[docs/architecture.md](docs/architecture.md) for the design decisions.
 
-Проверка на реальном TrueConf Server (бот задаётся в `.env`: `TRUECONF_BOT_USER` / `TRUECONF_BOT_PASS`):
-
-```bash
-python deploy/live.py
-```
-
-Скрипт прогоняет 10 проверок через настоящий сервер: авторизация бота, credential Test, отправка
-сообщения и файла, чтение истории, активация trigger-ноды и запуск workflow по реальному сообщению.
-Текущий статус: **проверено на TrueConf Server 5.5.8 — 10/10 PASS**.
-
-Подробнее — [docs/testing.md](docs/testing.md), устройство — [docs/architecture.md](docs/architecture.md).
-
-## Структура репозитория
+## Repository layout
 
 ```
 src/
-  credentials/TrueConfApi.credentials.ts   # credential + кнопка Test
+  credentials/TrueConfApi.credentials.ts   # credential + Test button
   nodes/TrueConf/
-    BridgeClient.ts                        # WebSocket-клиент: auth, id, ack, реконнект, кеш JWT
-    GenericFunctions.ts                    # multipart-загрузка файлов, разбор Envelope
-    TrueConf.node.ts                       # action-нода
-    TrueConfTrigger.node.ts                # trigger-нода
-    descriptions/                          # параметры UI по ресурсам
-deploy/                                    # установка пакета и e2e-стенд (Python + paramiko)
-examples/                                  # workflow JSON для импорта
-tests/                                     # unit-тесты и mock TrueConf Bridge
-docs/                                      # установка, архитектура, тестирование, исследование API
+    BridgeClient.ts                        # WebSocket client: auth, ids, ack, reconnect, JWT cache
+    GenericFunctions.ts                    # multipart upload, Envelope formatting
+    TrueConf.node.ts                       # action node
+    TrueConfTrigger.node.ts                # trigger node
+    descriptions/                          # UI parameters per resource
+tests/                                     # unit tests and the mock TrueConf Bridge
+examples/                                  # importable workflow JSON
+docs/                                      # installation, architecture, testing, research
 ```
 
-## Ограничения и особенности
+## Limitations
 
-* **Одно WebSocket-соединение на бота.** Все выполнения workflow переиспользуют общий клиент
-  (в TrueConf лимит 128 соединений на сервер). Trigger открывает собственное соединение, чтобы
-  падение action-вызовов не влияло на приём событий.
-* **Протокол push-only.** TrueConf присылает события по WebSocket; webhook-режима у Chatbot Connector
-  нет, поэтому trigger-нода держит постоянное соединение и переподключается с backoff.
-* **Подтверждение событий.** Каждое уведомление сервера подтверждается автоматически — без этого
-  TrueConf разрывает соединение через 300 секунд.
-* **Разметка.** TrueConf поддерживает `text`, `markdown`, `html`; inline-кнопки доступны начиная
-  с TrueConf Server 5.5.6 (в ноде пока не выведены в UI).
-* **Только Chatbot Connector.** Администрирование сервера (пользователи, конференции) — это другой
-  API (TrueConf Server API v4 с OAuth2), в этой ноде его нет: см. [docs/research/server-api-v4.md](docs/research/server-api-v4.md).
+* **One WebSocket session per bot.** All workflow runs share a single client (TrueConf allows 128
+  connections per server). The trigger opens its own connection so that a failed action call cannot
+  break event delivery.
+* **Push-only protocol.** TrueConf delivers events over WebSocket; there is no webhook mode, so the
+  trigger keeps a persistent connection and reconnects with backoff.
+* **Acknowledgements.** Every server notification is acknowledged automatically — otherwise TrueConf
+  closes the session after 300 seconds.
+* **Formatting.** `text`, `markdown` and `html` are supported; inline buttons (TrueConf 5.5.6+) are
+  not exposed in the UI yet.
+* **Chatbot Connector only.** Server administration (users, conferences) uses a different API
+  (TrueConf Server API v4 with OAuth2) and is not part of this node.
 
-## Документация
+## Documentation
 
-* [Установка и обновление](docs/installation.md)
-* [Архитектура и принятые решения](docs/architecture.md)
-* [Тестирование](docs/testing.md)
-* [Подготовка TrueConf Server и бота](docs/trueconf-prerequisites.md)
-* [Исследование API Chatbot Connector](docs/research/chatbot-connector.md) (контракт, 34 метода, события, ошибки)
-* [Исследование Server API v4](docs/research/server-api-v4.md)
-* [Механика community-нод n8n 2.47](docs/research/n8n-custom-node.md)
+* [Installation and upgrade](docs/installation.md)
+* [Architecture and design decisions](docs/architecture.md)
+* [Testing](docs/testing.md)
+* [TrueConf Server and bot prerequisites](docs/trueconf-prerequisites.md)
+* [Chatbot Connector API research](docs/research/chatbot-connector.md) (contract, 34 methods, events, errors)
 
-Официальная документация: [TrueConf Chatbot Connector](https://trueconf.ru/docs/chatbot-connector/ru/overview/),
+Official documentation: [TrueConf Chatbot Connector](https://trueconf.ru/docs/chatbot-connector/ru/overview/),
 [TrueConf Server](https://trueconf.ru/docs/main/ru/).
 
-## Лицензия
+## License
 
-MIT
+[MIT](LICENSE)
+
+---
+
+Русская версия: [README.ru.md](README.ru.md)

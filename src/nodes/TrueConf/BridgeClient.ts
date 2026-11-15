@@ -41,13 +41,13 @@ export class TrueConfError extends Error {
 }
 
 export interface ServerUrl {
-	/** Scheme + host + port, without a trailing slash, e.g. `http://192.168.0.11:4309`. */
+	/** Scheme + host + port, without a trailing slash, e.g. `http://n8n.example.com:4309`. */
 	origin: string;
 	secure: boolean;
 }
 
 /**
- * Accepts `192.168.0.11:4309`, `http://host`, `https://host:443/`, `wss://host` and returns
+ * Accepts `n8n.example.com:4309`, `http://host`, `https://host:443/`, `wss://host` and returns
  * a normalized origin. Any path/query is dropped: TrueConf Bridge always lives at the
  * server root (`/bridge/api/client/v1`, `/websocket/chat_bot/`), also when it is reached
  * through TrueConf Web Manager.

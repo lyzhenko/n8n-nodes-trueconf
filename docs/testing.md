@@ -32,7 +32,7 @@ npm test
 Стенд:
 
 ```
-n8n (192.168.0.11:5678)  ──ws/http──►  mock TrueConf Bridge (systemd unit tc-e2e)
+n8n (n8n.example.com:5678)  ──ws/http──►  mock TrueConf Bridge (systemd unit tc-e2e)
       ▲                                       127.0.0.1:4309 (bridge) / 4310 (control)
       │ REST API (cookie-сессия владельца)
 deploy/e2e.py  ──SSH──►  хост n8n
@@ -74,13 +74,13 @@ python deploy/e2e.py stop
 
 ## Проверка на реальном сервере
 
-Живой стенд: **TrueConf Server 5.5.8** (`192.168.0.13`, домен `ru5337.trueconf.name`), бот
-`bot@ru5337.trueconf.name`, цель — личный чат с `eladm@ru5337.trueconf.name`.
+Живой стенд: **TrueConf Server 5.5.8** (`trueconf.example.com`, домен `example.trueconf.name`), бот
+`bot@example.trueconf.name`, цель — личный чат с `eladm@example.trueconf.name`.
 
 ```bash
 # .env: TRUECONF_PATH / TRUECONF_BOT_USER / TRUECONF_BOT_PASS / TRUECONF_TARGET_USER
 python deploy/live.py
-python deploy/live.py --target eladm@ru5337.trueconf.name --text "проверка"
+python deploy/live.py --target eladm@example.trueconf.name --text "проверка"
 ```
 
 `deploy/live.py` собирает конфиг и запускает `scripts/live/n8n-live.mjs` **на хосте n8n**, чтобы
@@ -106,7 +106,7 @@ n8n обращался к TrueConf из своей сетевой позиции
 
 1. TrueConf Server 5.5.8 установлен на ALT Linux 11.1 (пакет `trueconf-server-5.5.8.10030-altp11`),
    лицензия Free уже зарегистрирована.
-2. Бот `bot@ru5337.trueconf.name` создан в панели (`/admin/` → Пользователи), тип «Пользователь».
+2. Бот `bot@example.trueconf.name` создан в панели (`/admin/` → Пользователи), тип «Пользователь».
 3. Для Server API v4 (не нужен самой ноде, но нужен для администрирования) включён HTTPS
    скриптом `scripts/setup/enable-trueconf-tls.sh`: добавляет `Listen 443`, самоподписанный
    сертификат и SSL-настройки в `conf.d/10-tls.ssl`, не трогая HTTP на 80.

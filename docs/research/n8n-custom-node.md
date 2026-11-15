@@ -1,6 +1,6 @@
 # Community-node пакет для n8n 2.x: разработка, сборка, установка
 
-Исследование выполнено на реальном сервере **n8n-prod-01.alexqsoft.int** (192.168.0.11, ALT Linux 11.1,
+Исследование выполнено на реальном сервере **n8n-server.example.com** (n8n.example.com, ALT Linux 11.1,
 нативная установка, systemd-юнит `n8n.service`, юзер `n8n`).
 
 Факты окружения (замерено, а не по памяти):
@@ -212,7 +212,7 @@ update/uninstall, `N8N_REINSTALL_MISSING_PACKAGES`). Пакет, лежащий 
 # 1. собрать пакет на dev-машине
 npm ci && npm run build && npm pack          # → n8n-nodes-trueconf-0.1.0.tgz
 # 2. скопировать тарбол на сервер (например, в /root или /var/tmp — НЕ в /tmp, см. §2.4)
-scp n8n-nodes-trueconf-0.1.0.tgz root@192.168.0.11:/var/lib/n8n/.n8n/
+scp n8n-nodes-trueconf-0.1.0.tgz root@n8n.example.com:/var/lib/n8n/.n8n/
 # 3. распаковать в node_modules (ровно как это делает сам n8n: tar --strip-components=1)
 install -d -o n8n -g n8n -m 0750 /var/lib/n8n/.n8n/nodes/node_modules/n8n-nodes-trueconf
 tar -xzf /var/lib/n8n/.n8n/nodes/n8n-nodes-trueconf-0.1.0.tgz \

@@ -8,7 +8,7 @@ TrueConf from its own network position.
 
 Usage:
     python deploy/live.py
-    python deploy/live.py --target eladm@ru5337.trueconf.name
+    python deploy/live.py --target eladm@example.trueconf.name
 """
 
 from __future__ import annotations
@@ -51,7 +51,7 @@ def load_ssh_env() -> dict[str, str]:
 
 
 def admin_credentials() -> tuple[str, str]:
-    email, password = 'admin@alexqsoft.int', ''
+    email, password = 'admin@example.com', ''
     if NOTES.exists():
         for line in NOTES.read_text(encoding='utf-8').splitlines():
             low = line.lower()
@@ -78,7 +78,7 @@ def main() -> int:
     if '://' not in base:
         base = f'http://{base}'
     bridge_url = f'{base}:4309' if base.count(':') == 1 else base
-    # TRUECONF_PATH=http://192.168.0.13 -> http://192.168.0.13:4309
+    # TRUECONF_PATH=http://trueconf.example.com -> http://trueconf.example.com:4309
     if base.startswith('http://') or base.startswith('https://'):
         host_part = base.split('://', 1)[1]
         if ':' not in host_part:
@@ -87,7 +87,7 @@ def main() -> int:
     config = {
         'email': email,
         'password': password,
-        'publicUrl': 'https://192.168.0.11',
+        'publicUrl': 'https://n8n.example.com',
         'credentialName': 'TrueConf (live)',
         'bridgeUrl': bridge_url,
         'botUser': repo['TRUECONF_BOT_USER'],

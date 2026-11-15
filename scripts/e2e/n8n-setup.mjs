@@ -111,7 +111,7 @@ process.stdout.write(
 			credentialName: credData.name,
 			workflowId: wfData.id,
 			workflowName: wfData.name,
-			url: `${config.publicUrl ?? 'https://192.168.0.11'}/workflow/${wfData.id}`,
+			url: `${config.publicUrl ?? 'https://n8n.example.com'}/workflow/${wfData.id}`,
 		},
 		null,
 		2,

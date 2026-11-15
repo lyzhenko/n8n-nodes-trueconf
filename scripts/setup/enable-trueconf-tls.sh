@@ -39,8 +39,8 @@ mkdir -p "$CERT_DIR"
 if [ ! -f "$CERT_DIR/tc.crt" ]; then
 	openssl req -x509 -newkey rsa:2048 -nodes -days 825 \
 		-keyout "$CERT_DIR/tc.key" -out "$CERT_DIR/tc.crt" \
-		-subj "/CN=trueconf-prod-01.alexqsoft.int" \
-		-addext "subjectAltName=DNS:trueconf-prod-01.alexqsoft.int,DNS:trueconf-prod-01,IP:192.168.0.13" \
+		-subj "/CN=trueconf-server.example.com" \
+		-addext "subjectAltName=DNS:trueconf-server.example.com,DNS:trueconf-server,IP:trueconf.example.com" \
 		>/dev/null 2>&1
 	echo "[tls] generated self-signed certificate"
 fi

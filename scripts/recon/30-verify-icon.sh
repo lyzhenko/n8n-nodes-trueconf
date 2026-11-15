@@ -7,7 +7,7 @@ trap 'rm -f "$COOKIE"' EXIT
 
 curl -s -c "$COOKIE" -X POST "$BASE/rest/login" \
 	-H 'content-type: application/json' \
-	-d "{\"emailOrLdapLoginId\":\"${N8N_EMAIL:-admin@alexqsoft.int}\",\"password\":\"${N8N_PASS:?set N8N_PASS}\"}" >/dev/null
+	-d "{\"emailOrLdapLoginId\":\"${N8N_EMAIL:-admin@example.com}\",\"password\":\"${N8N_PASS:?set N8N_PASS}\"}" >/dev/null
 
 curl -s -b "$COOKIE" "$BASE/rest/node-types" > /tmp/nt.json
 /opt/node/bin/node -e '

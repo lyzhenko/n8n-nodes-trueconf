@@ -40,8 +40,8 @@ after(async () => {
 
 describe('parseServerUrl', () => {
 	it('adds the default scheme and keeps the port', () => {
-		assert.deepEqual(parseServerUrl('192.168.0.11:4309'), {
-			origin: 'http://192.168.0.11:4309',
+		assert.deepEqual(parseServerUrl('n8n.example.com:4309'), {
+			origin: 'http://n8n.example.com:4309',
 			secure: false,
 		});
 	});
