@@ -1,93 +1,172 @@
-# trueconf_node_n8n
+# n8n-nodes-trueconf
 
-
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+Community-нода для [n8n](https://n8n.io) — интеграция с **TrueConf Server** через Chatbot Connector
+(HTTP API + WebSocket). Аналог ноды Telegram: бот получает сообщения в реальном времени и отвечает
+текстом или файлами.
 
 ```
-cd existing_repo
-git remote add origin http://192.168.0.12/lyzhenko/trueconf_node_n8n.git
-git branch -M main
-git push -uf origin main
+n8n workflow:  [TrueConf Trigger] ──► [любая логика n8n] ──► [TrueConf: Send Message]
 ```
 
-## Integrate with your tools
+## Что умеет
 
-* [Set up project integrations](http://192.168.0.12/lyzhenko/trueconf_node_n8n/-/settings/integrations)
+**Нода `TrueConf` (action)**
 
-## Collaborate with your team
+| Ресурс  | Операции |
+|---|---|
+| Message | Send Message, Send File, Edit Message, Delete Message, Forward Message, Get Message, Get Chat History |
+| Chat    | Get Many, Get, Create Personal Chat, Create Group Chat, Create Channel, Get Participants |
+| Bot     | Get Bot Info (проверка связи и TrueConf ID бота) |
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+**Нода `TrueConf Trigger`** — запускает workflow по событиям TrueConf: новое сообщение, нажатие
+inline-кнопки, создание чата, изменение участников, редактирование/удаление сообщения, изменение чата.
+Есть фильтры по событиям и по chat ID, опция «не реагировать на собственные сообщения» и доставка
+сообщений, накопившихся пока workflow был выключен.
 
-## Test and Deploy
+**Credential `TrueConf API`** — адрес сервера, TrueConf ID бота и пароль. JWT кешируется на месяц,
+кнопка «Test» проверяет учётные данные реальным запросом к серверу.
 
-Use the built-in continuous integration in GitLab.
+## Требования
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+* n8n **2.x** (проверено на 2.47.7), Node.js >= 24 (в n8n 2.x это требование платформы).
+* TrueConf Server **5.5.0+** (TrueConf Server Free подходит: Chatbot Connector входит в бесплатную
+  редакцию). Нужна обычная учётная запись пользователя-бота с паролем.
+* Сетевой доступ из n8n до TrueConf Bridge: `http://<server>:4309` (локально) или
+  `https://<server>` через TrueConf Web Manager.
 
-***
+Подробнее о подготовке сервера и бота — [docs/trueconf-prerequisites.md](docs/trueconf-prerequisites.md).
 
-# Editing this README
+## Установка
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+Пакет ставится на хост n8n вручную, из собранного tarball (публикация в npm не требуется).
 
-## Suggestions for a good README
+```bash
+# 1. Собрать пакет (на машине разработчика)
+npm install
+npm run build
+npm pack                       # -> n8n-nodes-trueconf-0.1.0.tgz
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+# 2. На хосте n8n (root)
+install -d -o n8n -g n8n -m 0750 /var/lib/n8n/.n8n/nodes/node_modules/n8n-nodes-trueconf
+tar -xzf n8n-nodes-trueconf-0.1.0.tgz \
+    -C /var/lib/n8n/.n8n/nodes/node_modules/n8n-nodes-trueconf --strip-components=1
+chown -R n8n:n8n /var/lib/n8n/.n8n/nodes/node_modules/n8n-nodes-trueconf
 
-## Name
-Choose a self-explaining name for your project.
+# 3. Перезапустить n8n (пакеты читаются с диска при старте)
+systemctl restart n8n
+```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+Автоматизированный вариант — `deploy/deploy.py` (собирает, копирует по SSH, ставит, перезапускает):
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+```bash
+cp deploy/.env.example deploy/.env    # SSH-доступ к хосту n8n
+python deploy/deploy.py
+```
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+После перезапуска ноды `TrueConf` и `TrueConf Trigger` появляются в панели узлов.
+Подробности и обновление — [docs/installation.md](docs/installation.md).
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+## Настройка
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+1. **Credentials → New → TrueConf API**
+   * **Server URL** — `http://192.168.0.11:4309` (локальный Bridge) или `https://trueconf.example.com`.
+     Схему можно не указывать, по умолчанию `http`.
+   * **Bot TrueConf ID** — логин бота, например `bot@video.example.com`.
+   * **Bot Password** — пароль бота.
+   * **Ignore SSL Issues** — включить для самоподписанного сертификата TrueConf.
+2. Нажмите **Test** — должно появиться `Connection successful!`.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+## Использование
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+### Отправить сообщение
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+1. Добавьте ноду **TrueConf**, ресурс `Message`, операция `Send Message`.
+2. В поле **Chat ID or TrueConf ID** укажите:
+   * `chatId` существующего чата (например, из trigger-ноды), **или**
+   * TrueConf ID пользователя (`user@video.example.com`) — тогда бот откроет (или найдёт) личный чат.
+3. Текст, режим разметки (`text` / `markdown` / `html`), при необходимости — `Reply to Message ID`.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+### Отправка файла
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+Операция `Send File` берёт файл из бинарного поля входного item (по умолчанию `data`). Типичная
+цепочка: `HTTP Request` (Response Format = File) → `TrueConf: Send File`, либо `Read Binary File`.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+### Ответ на входящее сообщение
 
-## License
-For open source projects, say how it is licensed.
+`TrueConf Trigger` (событие **Message Received**) → нужная логика → `TrueConf: Send Message`, где
+**Chat ID or TrueConf ID** = `{{ $json.chatId }}`, а **Reply to Message ID** = `{{ $json.messageId }}`.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Триггер отдаёт удобные поля: `chatId`, `chatTitle`, `chatType`, `messageId`, `authorId`, `authorType`,
+`text`, `parseMode`, `contentType`, `timestamp`, `replyMessageId`, `isFile…`, а исходный объект
+TrueConf — в `raw`.
+
+Готовые workflow для импорта — в каталоге [examples/](examples/).
+
+## Разработка
+
+```bash
+npm install
+npm run build        # tsc + копирование иконок в dist/
+npm test             # unit-тесты протокола против mock TrueConf Bridge (14 проверок)
+npm run typecheck
+```
+
+E2E-проверка на живом n8n (создаёт credential и workflow через REST API, гоняет sendMessage, getChats,
+sendFile и trigger через mock Bridge, запущенный на хосте n8n):
+
+```bash
+python deploy/e2e.py start     # поднять mock Bridge (systemd unit tc-e2e) на 127.0.0.1:4309
+python deploy/e2e.py setup     # создать credential и workflow в n8n
+python deploy/e2e.py suite     # прогнать 13 проверок
+python deploy/e2e.py stop      # остановить mock
+```
+
+Подробнее — [docs/testing.md](docs/testing.md), устройство — [docs/architecture.md](docs/architecture.md).
+
+## Структура репозитория
+
+```
+src/
+  credentials/TrueConfApi.credentials.ts   # credential + кнопка Test
+  nodes/TrueConf/
+    BridgeClient.ts                        # WebSocket-клиент: auth, id, ack, реконнект, кеш JWT
+    GenericFunctions.ts                    # multipart-загрузка файлов, разбор Envelope
+    TrueConf.node.ts                       # action-нода
+    TrueConfTrigger.node.ts                # trigger-нода
+    descriptions/                          # параметры UI по ресурсам
+deploy/                                    # установка пакета и e2e-стенд (Python + paramiko)
+examples/                                  # workflow JSON для импорта
+tests/                                     # unit-тесты и mock TrueConf Bridge
+docs/                                      # установка, архитектура, тестирование, исследование API
+```
+
+## Ограничения и особенности
+
+* **Одно WebSocket-соединение на бота.** Все выполнения workflow переиспользуют общий клиент
+  (в TrueConf лимит 128 соединений на сервер). Trigger открывает собственное соединение, чтобы
+  падение action-вызовов не влияло на приём событий.
+* **Протокол push-only.** TrueConf присылает события по WebSocket; webhook-режима у Chatbot Connector
+  нет, поэтому trigger-нода держит постоянное соединение и переподключается с backoff.
+* **Подтверждение событий.** Каждое уведомление сервера подтверждается автоматически — без этого
+  TrueConf разрывает соединение через 300 секунд.
+* **Разметка.** TrueConf поддерживает `text`, `markdown`, `html`; inline-кнопки доступны начиная
+  с TrueConf Server 5.5.6 (в ноде пока не выведены в UI).
+* **Только Chatbot Connector.** Администрирование сервера (пользователи, конференции) — это другой
+  API (TrueConf Server API v4 с OAuth2), в этой ноде его нет: см. [docs/research/server-api-v4.md](docs/research/server-api-v4.md).
+
+## Документация
+
+* [Установка и обновление](docs/installation.md)
+* [Архитектура и принятые решения](docs/architecture.md)
+* [Тестирование](docs/testing.md)
+* [Подготовка TrueConf Server и бота](docs/trueconf-prerequisites.md)
+* [Исследование API Chatbot Connector](docs/research/chatbot-connector.md) (контракт, 34 метода, события, ошибки)
+* [Исследование Server API v4](docs/research/server-api-v4.md)
+* [Механика community-нод n8n 2.47](docs/research/n8n-custom-node.md)
+
+Официальная документация: [TrueConf Chatbot Connector](https://trueconf.ru/docs/chatbot-connector/ru/overview/),
+[TrueConf Server](https://trueconf.ru/docs/main/ru/).
+
+## Лицензия
+
+MIT

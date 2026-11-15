@@ -1,0 +1,42 @@
+{
+  "name": "TrueConf: эхо-бот",
+  "nodes": [
+    {
+      "parameters": {
+        "events": ["message"],
+        "chatIds": "",
+        "ignoreOwnMessages": true,
+        "includeSystemMessages": false,
+        "receiveUnread": false
+      },
+      "id": "a1b2c3d4-0002-4000-8000-000000000001",
+      "name": "TrueConf Trigger",
+      "type": "n8n-nodes-trueconf.trueConfTrigger",
+      "typeVersion": 1,
+      "position": [-220, 0]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ 'Вы написали: ' + $json.text }}",
+        "parseMode": "text",
+        "replyToMessageId": "={{ $json.messageId }}"
+      },
+      "id": "a1b2c3d4-0002-4000-8000-000000000002",
+      "name": "Reply",
+      "type": "n8n-nodes-trueconf.trueConf",
+      "typeVersion": 1,
+      "position": [20, 0]
+    }
+  ],
+  "connections": {
+    "TrueConf Trigger": {
+      "main": [[{ "node": "Reply", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "pinData": {},
+  "meta": { "templateCredsSetupCompleted": false }
+}
